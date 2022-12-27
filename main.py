@@ -26,7 +26,10 @@ def lineups(season_id: str):
         resp = requests.get(endpoints.lineups_url)
         data = resp.json()
     except:
-        return {"error": "unable to make request to sport radar"}
+        return {
+            "error": "unable to make request to sport radar",
+            "extra": {"request_url": endpoints.lineups_url, "season_id": season_id},
+        }
     return data
 
 

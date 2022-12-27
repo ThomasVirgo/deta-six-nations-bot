@@ -1,6 +1,6 @@
 import os
 
-API_KEY = os.getenv("API_KEY")
+API_KEY = os.getenv("SPORT_RADAR_API_KEY")
 COMPETITION_ID = "sr:competition:423"
 SEASON_ID = "sr:season:92685"
 BASE_URL = "http://api.sportradar.us/rugby-union/trial/v3/en"
