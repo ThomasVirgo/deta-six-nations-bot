@@ -76,7 +76,7 @@ class DataLoader:
             sport_event_context: Dict = sport_event.get("sport_event_context", {})
             comp_name = sport_event_context.get("competition", {}).get("name", "")
             round = sport_event_context.get("round", {}).get("number", None)
-            competitors = sport_event_context.get("competitors", [])
+            competitors = sport_event.get("competitors", [])
             teams = []
             for c in competitors:
                 team = Team(
