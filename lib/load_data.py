@@ -6,18 +6,19 @@ from lib.constants import SEASON_ID, API_KEY, BASE_URL
 
 
 class Endpoints:
-    def __init__(self, season_id: str = SEASON_ID) -> None:
+    def __init__(self, season_id: str = SEASON_ID, api_key: str = API_KEY) -> None:
         self.season_id = season_id
+        self.api_key = api_key
 
     @property
     def lineups_url(self):
-        return f"{BASE_URL}/seasons/{self.season_id}/lineups.json?api_key={API_KEY}"
+        return (
+            f"{BASE_URL}/seasons/{self.season_id}/lineups.json?api_key={self.api_key}"
+        )
 
     @property
     def probabilities_url(self):
-        return (
-            f"{BASE_URL}/seasons/{self.season_id}/probabilities.json?api_key={API_KEY}"
-        )
+        return f"{BASE_URL}/seasons/{self.season_id}/probabilities.json?api_key={self.api_key}"
 
 
 @dataclass
@@ -44,9 +45,10 @@ class LineUp:
 
 
 class DataLoader:
-    def __init__(self, season_id: str = SEASON_ID) -> None:
+    def __init__(self, season_id: str = SEASON_ID, api_key: str = API_KEY) -> None:
         self.season_id = season_id
-        self.endpoints = Endpoints(self.season_id)
+        self.api_key = api_key
+        self.endpoints = Endpoints(self.season_id, self.api_key)
         self.lineups_dict: Dict = self.get_lineups()
         self.probabilities_dict = self.get_probablities()
         self.lineups_data: List[Dict] = self.lineups_dict.get("lineups", {})
@@ -58,8 +60,10 @@ class DataLoader:
         return resp.json()
 
     def get_probablities(self):
-        resp = requests.get(self.endpoints.probabilities_url)
-        return resp.json()
+        print(self.endpoints.probabilities_url)
+        # resp = requests.get(self.endpoints.probabilities_url)
+        # return resp.json()
+        return {}
 
     def extract_data(self):
         for lineup in self.lineups_data:
