@@ -1,6 +1,6 @@
 import requests
 from fastapi import FastAPI
-from lib.logic import Endpoints
+from lib.load_data import DataLoader
 
 app = FastAPI()
 
@@ -19,29 +19,12 @@ def read_root():
 @app.get("/bot/lineups/{season_id}")
 def lineups(season_id: str):
     if season_id == "default":
-        endpoints = Endpoints()
+        data_loader = DataLoader()
     else:
-        endpoints = Endpoints(season_id)
-    try:
-        resp = requests.get(endpoints.lineups_url)
-        data = resp.json()
-    except:
-        return {
-            "error": "unable to make request to sport radar",
-            "extra": {"request_url": endpoints.lineups_url, "season_id": season_id},
-        }
-    return data
+        data_loader = DataLoader(season_id)
+    return data_loader.to_dict()
 
 
 @app.get("/bot/probabilities/{season_id}")
 def probabilities(season_id: str):
-    if season_id == "default":
-        endpoints = Endpoints()
-    else:
-        endpoints = Endpoints(season_id)
-    try:
-        resp = requests.get(endpoints.probabilities_url)
-        data = resp.json()
-    except:
-        return {"error": "unable to make request to sport radar"}
-    return data
+    return {"info": "endpoint not built yet"}
