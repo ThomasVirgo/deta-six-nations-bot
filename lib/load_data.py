@@ -34,6 +34,7 @@ class Team:
     name: str
     qualifier: str
     players: Optional[List[Player]] = None
+    probability_of_winning: Optional[float] = None
 
 
 @dataclass
@@ -51,11 +52,15 @@ class DataLoader:
         self.api_key = api_key
         self.endpoints = Endpoints(self.season_id, self.api_key)
         self.lineups_dict: Dict = self.get_lineups()
-        time.sleep(0.3)
-        self.probs_dict: Dict = self.get_probablities()
         self.lineups_data: List[Dict] = self.lineups_dict.get("lineups", {})
+        time.sleep(0.8)
+        self.probs_dict: Dict = self.get_probablities()
+        self.probs_data: List[Dict] = self.probs_dict.get(
+            "sport_event_probabilities", {}
+        )
         self.lineups: List[LineUp] = []
         self.extract_data()
+        self.join_probabilities_data()
 
     def get_lineups(self):
         resp = requests.get(self.endpoints.lineups_url)
@@ -88,6 +93,30 @@ class DataLoader:
                 teams.append(team)
             new_lineup = LineUp(id, start_time, comp_name, teams, round)
             self.lineups.append(new_lineup)
+
+    def find_item_in_list_of_dicts(self, lst: List, key, value):
+        for item in lst:
+            if item[key] == value:
+                return item
+
+    def join_probabilities_data(self):
+        for item in self.probs_data:
+            sport_event = item.get("sport_event", {})
+            id = sport_event.get("id")
+            outcomes = item.get("markets", {})[0].get("outcomes")
+            home_win_prob = self.find_item_in_list_of_dicts(
+                outcomes, "name", "home_team_winner"
+            ).get("probability")
+            away_win_prob = self.find_item_in_list_of_dicts(
+                outcomes, "name", "away_team_winner"
+            ).get("probability")
+            for lineup in self.lineups:
+                if lineup.id == id:
+                    for team in lineup.competitors:
+                        if team.qualifier == "home":
+                            team.probability_of_winning = home_win_prob
+                        if team.qualifier == "away":
+                            team.probability_of_winning = away_win_prob
 
     def load_players(self) -> List[Player]:
         # TODO
