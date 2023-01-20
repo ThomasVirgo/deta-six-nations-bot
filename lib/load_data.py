@@ -1,9 +1,20 @@
 import requests
 import time
+from enum import Enum
 from dataclasses import dataclass, asdict
 from datetime import datetime
 from typing import Dict, List, Optional
 from lib.constants import SEASON_ID, API_KEY, BASE_URL
+
+
+class Country(Enum):
+    ENGLAND = "England"
+    WALES = "Wales"
+    IRELAND = "Ireland"
+    SCOTLAND = "Scotland"
+    ITALY = "Italy"
+    FRANCE = "France"
+    UNKNOWN = ""
 
 
 class Endpoints:
@@ -24,14 +35,15 @@ class Endpoints:
 
 @dataclass
 class Player:
-    name: str
     jersey_number: int
+    is_sub: bool
+    name: Optional[str] = None
 
 
 @dataclass
 class Team:
     id: str
-    name: str
+    name: Country
     qualifier: str
     players: Optional[List[Player]] = None
     probability_of_winning: Optional[float] = None
@@ -86,7 +98,7 @@ class DataLoader:
             for c in competitors:
                 team = Team(
                     c.get("id", ""),
-                    c.get("name", ""),
+                    Country(c.get("name", "")),
                     c.get("qualifier", ""),
                     self.load_players(),
                 )

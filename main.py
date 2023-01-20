@@ -1,6 +1,8 @@
 import requests
 from fastapi import FastAPI
 from lib.load_data import DataLoader, Endpoints
+from lib.logic import SelectTeam
+from dataclasses import asdict
 
 app = FastAPI()
 
@@ -45,5 +47,15 @@ def probabilities():
         endpoints = Endpoints()
         resp = requests.get(endpoints.probabilities_url)
         return resp.json()
+    except Exception as e:
+        return {"error", str(e)}
+
+
+@app.get("/bot/select_players/{round}")
+def probabilities(round: int):
+    try:
+        data_loader = DataLoader()
+        selector = SelectTeam(data_loader.lineups, round)
+        return [asdict(team) for team in selector.select()]
     except Exception as e:
         return {"error", str(e)}
