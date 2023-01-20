@@ -1,6 +1,6 @@
 import requests
 from fastapi import FastAPI
-from lib.load_data import DataLoader
+from lib.load_data import DataLoader, Endpoints
 
 app = FastAPI()
 
@@ -27,4 +27,6 @@ def lineups(season_id: str):
 
 @app.get("/bot/probabilities/{season_id}")
 def probabilities(season_id: str):
-    return {"info": "endpoint not built yet"}
+    endpoints = Endpoints()
+    resp = requests.get(endpoints.probabilities_url)
+    return resp.json()

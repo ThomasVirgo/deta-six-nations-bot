@@ -50,7 +50,7 @@ class DataLoader:
         self.api_key = api_key
         self.endpoints = Endpoints(self.season_id, self.api_key)
         self.lineups_dict: Dict = self.get_lineups()
-        self.probabilities_dict = self.get_probablities()
+        self.probs_data: Dict = self.get_probablities()
         self.lineups_data: List[Dict] = self.lineups_dict.get("lineups", {})
         self.lineups: List[LineUp] = []
         self.extract_data()
@@ -60,10 +60,8 @@ class DataLoader:
         return resp.json()
 
     def get_probablities(self):
-        print(self.endpoints.probabilities_url)
-        # resp = requests.get(self.endpoints.probabilities_url)
-        # return resp.json()
-        return {}
+        response = requests.get(self.endpoints.probabilities_url)
+        return response.json()
 
     def extract_data(self):
         for lineup in self.lineups_data:
