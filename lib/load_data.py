@@ -1,4 +1,5 @@
 import requests
+import time
 from dataclasses import dataclass, asdict
 from datetime import datetime
 from typing import Dict, List, Optional
@@ -50,7 +51,8 @@ class DataLoader:
         self.api_key = api_key
         self.endpoints = Endpoints(self.season_id, self.api_key)
         self.lineups_dict: Dict = self.get_lineups()
-        self.probs_data: Dict = self.get_probablities()
+        time.sleep(0.3)
+        self.probs_dict: Dict = self.get_probablities()
         self.lineups_data: List[Dict] = self.lineups_dict.get("lineups", {})
         self.lineups: List[LineUp] = []
         self.extract_data()
