@@ -15,6 +15,7 @@ def read_root():
             "/bot/lineups/{season_id}": "get lineups for that season id",
             "/bot/raw_probabilities/": "raw probabilities data",
             "/bot/raw_lineups/": "raw lineups data",
+            "/bot/select_players/{round}": "select team for given round",
         },
     }
 
