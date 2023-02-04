@@ -1,6 +1,6 @@
 import requests
 from fastapi import FastAPI
-from lib.load_data import DataLoader, Endpoints
+from lib.load_data import DataLoader, Endpoints, ClientDataLoader
 from lib.logic import SelectTeam
 from dataclasses import asdict
 
@@ -58,5 +58,15 @@ def probabilities(round: int):
         data_loader = DataLoader()
         selector = SelectTeam(data_loader.lineups, round)
         return [asdict(team) for team in selector.select()]
+    except Exception as e:
+        return {"error", str(e)}
+
+
+@app.get("bot/client/all_players")
+def all_players():
+    try:
+        data_loader = ClientDataLoader()
+        data_loader.create_players()
+        return [asdict(player) for player in data_loader.players]
     except Exception as e:
         return {"error", str(e)}

@@ -5,6 +5,7 @@ from dataclasses import dataclass, asdict
 from datetime import datetime
 from typing import Dict, List, Optional
 from lib.constants import SEASON_ID, API_KEY, BASE_URL
+from lib.client import SixNationsClient
 
 
 class Country(Enum):
@@ -38,6 +39,8 @@ class Player:
     jersey_number: int
     is_sub: bool
     name: Optional[str] = None
+    price: Optional[float] = None
+    club: Optional[str] = None
 
 
 @dataclass
@@ -137,3 +140,27 @@ class DataLoader:
     def to_dict(self):
         lineups = [asdict(l) for l in self.lineups]
         return {"lineups": lineups}
+
+
+class ClientDataLoader:
+    def __init__(self) -> None:
+        self.client = SixNationsClient()
+        self.raw_data = self.client.get_players(page_size=500)
+        self.player_data_list: LineUp[Dict] = self.raw_data.get("joueurs")
+        self.players: List[Player] = []
+
+    def create_players(self):
+        for player_data in self.player_data_list:
+            name = player_data.get("nomcomplet")
+            club = player_data.get("club")
+            jersey_number = player_data.get("id_position")
+            price = player_data.get("valeur")
+            is_sub = player_data.get("formeprev").get("tooltip") != "Starting player"
+            new_player = Player(
+                name=name,
+                price=price,
+                jersey_number=jersey_number,
+                is_sub=is_sub,
+                club=club,
+            )
+            self.players.append(new_player)
