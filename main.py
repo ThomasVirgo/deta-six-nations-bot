@@ -16,6 +16,7 @@ def read_root():
             "/bot/raw_probabilities/": "raw probabilities data",
             "/bot/raw_lineups/": "raw lineups data",
             "/bot/select_players/{round}": "select team for given round",
+            "/bot/client/all_players": "all players from six nations site",
         },
     }
 
@@ -62,7 +63,7 @@ def probabilities(round: int):
         return {"error", str(e)}
 
 
-@app.get("bot/client/all_players")
+@app.get("/bot/client/all_players")
 def all_players():
     try:
         data_loader = ClientDataLoader()

@@ -44,6 +44,15 @@ class Player:
 
 
 @dataclass
+class ClientPlayer:
+    position: str
+    price: str
+    starting_status: str
+    club: str
+    name: str
+
+
+@dataclass
 class Team:
     id: str
     name: Country
@@ -142,6 +151,18 @@ class DataLoader:
         return {"lineups": lineups}
 
 
+POSITION_ID_TO_POSITION = {
+    6: "back three",
+    7: "centre",
+    8: "fly half",
+    9: "scrum half",
+    10: "back row",
+    11: "second row",
+    12: "prop",
+    13: "hooker",
+}
+
+
 class ClientDataLoader:
     def __init__(self) -> None:
         self.client = SixNationsClient()
@@ -153,14 +174,14 @@ class ClientDataLoader:
         for player_data in self.player_data_list:
             name = player_data.get("nomcomplet")
             club = player_data.get("club")
-            jersey_number = player_data.get("id_position")
+            position = POSITION_ID_TO_POSITION.get(player_data.get("id_position"))
             price = player_data.get("valeur")
-            is_sub = player_data.get("formeprev").get("tooltip") != "Starting player"
-            new_player = Player(
+            starting_status = player_data.get("formeprev", {}).get("tooltip")
+            new_player = ClientPlayer(
+                position=position,
                 name=name,
-                price=price,
-                jersey_number=jersey_number,
-                is_sub=is_sub,
                 club=club,
+                price=price,
+                starting_status=starting_status,
             )
             self.players.append(new_player)

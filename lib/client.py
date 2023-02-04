@@ -39,13 +39,18 @@ class SixNationsClient:
                 "idj": "1",
                 "pageIndex": 0,
                 "pageSize": page_size,
-                "loadSelect": 1,
+                "loadSelect": 0,
                 "searchonly": 1,
             }
         }
 
     def get_players(self, page_size: int):
         response = requests.post(
-            self.player_url, data=self.get_body(page_size), headers=self.get_headers()
+            self.player_url, json=self.get_body(page_size), headers=self.get_headers()
         )
         return response.json()
+
+
+if __name__ == "__main__":
+    client = SixNationsClient()
+    print(client.get_players(500))
