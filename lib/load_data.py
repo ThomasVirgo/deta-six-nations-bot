@@ -59,6 +59,7 @@ class Team:
     qualifier: str
     players: Optional[List[Player]] = None
     probability_of_winning: Optional[float] = None
+    all_players: Optional[List[ClientPlayer]] = None
 
 
 @dataclass
@@ -164,8 +165,8 @@ POSITION_ID_TO_POSITION = {
 
 
 class ClientDataLoader:
-    def __init__(self) -> None:
-        self.client = SixNationsClient()
+    def __init__(self, token) -> None:
+        self.client = SixNationsClient(token)
         self.raw_data = self.client.get_players(page_size=500)
         self.player_data_list: LineUp[Dict] = self.raw_data.get("joueurs")
         self.players: List[Player] = []

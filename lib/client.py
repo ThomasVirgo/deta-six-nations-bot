@@ -1,17 +1,19 @@
+from typing import Optional
 import requests
 
 
 class SixNationsClient:
-    def __init__(self) -> None:
+    def __init__(self, token: Optional[str] = None) -> None:
+        self.token = token
         self.player_url = (
             "https://fantasy.sixnationsrugby.com/v1/private/searchjoueurs?lg=en"
         )
+        self.login_url = "https://fantasy.sixnationsrugby.com/v1/public/login?lg=en"
 
-    def get_headers(self):
-        return {
+    def get_headers(self, add_auth: bool = False):
+        headers = {
             "accept": "application/json",
             "accept-language": "en-GB,en-US;q=0.9,en;q=0.8",
-            "authorization": "Token eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2NzU1MTU2NTMsImV4cCI6MTY3NzkzNDg1MywianRpIjoiSGRXS0JkV09vOG8rZVpIVVwvbEFPVVE9PSIsImlzcyI6Imh0dHBzOlwvXC9mYW50YXN5LnNpeG5hdGlvbnNydWdieS5jb20iLCJzdWIiOnsiaWQiOiIzMTQ4NzQiLCJtYWlsIjoidG9tY3ZpcmdvQGdtYWlsLmNvbSIsIm1hbmFnZXIiOiJUdXJkbyIsImlkbCI6IjEiLCJpZGciOiI3OTcxNCIsImZ1c2VhdSI6IkV1cm9wZVwvTG9uZG9uIiwibWVyY2F0byI6MCwiaWRqZyI6IjMzNjI0OSIsImlzYWRtaW5jbGllbnQiOmZhbHNlLCJpc2FkbWluIjpmYWxzZSwiaXNzdXBlcmFkbWluIjpmYWxzZSwidmlwIjpmYWxzZSwiaWRlbnRpdHkiOiI2MDAiLCJpZ25vcmVjb2RlIjpmYWxzZSwiY29kZSI6IjYwMC4yIiwiY29kZUY1IjoiNjAwLjQiLCJkZWNvIjowfX0.85EC8OvRGUpic_czjQtXNCGhSuB5h5EY5d7LVTFDN9Y",
             "content-type": "application/json",
             "sec-ch-ua": '"Not_A Brand";v="99", "Google Chrome";v="109", "Chromium";v="109"',
             "sec-ch-ua-mobile": "?0",
@@ -24,8 +26,12 @@ class SixNationsClient:
             "Referer": "https://fantasy.sixnationsrugby.com/",
             "Referrer-Policy": "strict-origin-when-cross-origin",
         }
+        if add_auth:
+            headers["authorization"] = f"Token {self.token}"
 
-    def get_body(self, page_size: int):
+        return headers
+
+    def get_players_body(self, page_size: int):
         return {
             "filters": {
                 "nom": "",
@@ -36,7 +42,7 @@ class SixNationsClient:
                 "partant": False,
                 "dreamteam": False,
                 "quota": "",
-                "idj": "1",
+                "idj": "2",
                 "pageIndex": 0,
                 "pageSize": page_size,
                 "loadSelect": 0,
@@ -46,11 +52,24 @@ class SixNationsClient:
 
     def get_players(self, page_size: int):
         response = requests.post(
-            self.player_url, json=self.get_body(page_size), headers=self.get_headers()
+            self.player_url,
+            json=self.get_players_body(page_size),
+            headers=self.get_headers(add_auth=True),
         )
         return response.json()
 
+    def login(self, email: str, password: str) -> str:
+        body = {
+            "user": {
+                "mail": email,
+                "password": password,
+                "fcmtoken": "",
+            }
+        }
+        response = requests.post(self.login_url, headers=self.get_headers(), json=body)
+        data = response.json()
+        return data.get("user", {}).get("token", "")
+
 
 if __name__ == "__main__":
-    client = SixNationsClient()
-    print(client.get_players(500))
+    pass

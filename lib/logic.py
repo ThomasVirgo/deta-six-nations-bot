@@ -54,7 +54,7 @@ class SelectTeam:
                 teams.append(team)
         return sorted(teams, key=key, reverse=True)
 
-    def select(self):
+    def select(self) -> List[Team]:
         teams_ranked = self.rank_teams()
         for i, jersey_number_group in enumerate(JERSEY_ORDERING):
             team = teams_ranked[i]

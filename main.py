@@ -1,10 +1,27 @@
 import requests
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
+from lib.client import SixNationsClient
 from lib.load_data import DataLoader, Endpoints, ClientDataLoader
 from lib.logic import SelectTeam
 from dataclasses import asdict
+from pydantic import BaseModel
 
 app = FastAPI()
+
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
+class LoginData(BaseModel):
+    email: str
+    password: str
 
 
 @app.get("/")
@@ -64,10 +81,41 @@ def probabilities(round: int):
 
 
 @app.get("/bot/client/all_players")
-def all_players():
+def all_players(request: Request):
     try:
-        data_loader = ClientDataLoader()
+        token = request.headers.get("token", "")
+        data_loader = ClientDataLoader(token)
         data_loader.create_players()
         return [asdict(player) for player in data_loader.players]
+    except Exception as e:
+        return {"error", str(e)}
+
+
+@app.get("/bot/client/select_players/{round}")
+def all_players(request: Request, round: int):
+    try:
+        token = request.headers.get("token", "")
+        data_loader = ClientDataLoader(token)
+        data_loader.create_players()
+        data_loader_2 = DataLoader()
+        selector = SelectTeam(data_loader_2.lineups, round)
+        teams = selector.select()
+        for team in teams:
+            for player in data_loader.players:
+                if team.name.value == player.club:
+                    if team.all_players is None:
+                        team.all_players = []
+                    team.all_players.append(player)
+        return [asdict(team) for team in teams]
+    except Exception as e:
+        return {"error", str(e)}
+
+
+@app.post("/bot/login")
+def login(login_data: LoginData):
+    try:
+        client = SixNationsClient()
+        token = client.login(login_data.email, login_data.password)
+        return token
     except Exception as e:
         return {"error", str(e)}
